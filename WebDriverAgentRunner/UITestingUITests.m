@@ -102,7 +102,7 @@
     XCUIElement *alert = [application.alerts firstMatch];
     if (alert.frame.origin.x > 0) {
       point.x -= alert.frame.origin.x;
-      point.y -= (alert.frame.origin.y + 30);
+      point.y -= (alert.frame.origin.y);
       return [self gestureCoordinateWithCoordinate:point element:alert];
     }else{
       return [self fb_gestureCoordinateWithCoordinate:coordinate application:application shouldApplyOrientationWorkaround:shouldApplyOrientationWorkaround];
