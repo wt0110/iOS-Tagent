@@ -56,7 +56,26 @@
     Method swizzledMethod = class_getClassMethod(NSClassFromString(@"FBSessionCommands"), @selector(fb_handleDeleteSession:));
     method_exchangeImplementations(originalMethod, swizzledMethod);
   }
+  
+//  {
+//    Method originalMethod = class_getClassMethod(NSClassFromString(@"FBSessionCommands"), @selector(handleSessionAppTerminate:));
+//    Method swizzledMethod = class_getClassMethod(NSClassFromString(@"FBSessionCommands"), @selector(fb_handleSessionAppTerminate:));
+//    method_exchangeImplementations(originalMethod, swizzledMethod);
+//  }
 }
+
+#pragma mark- FBSessionCommands::handleSessionAppTerminate
+//+ (id<FBResponsePayload>)handleSessionAppTerminate:(FBRouteRequest *)request
+//{
+//  BOOL result = [request.session terminateApplicationWithBundleId:(id)request.arguments[@"bundleId"]];
+//  return FBResponseWithObject(@(result));
+//}
+//
+//+ (id<FBResponsePayload>)fb_handleSessionAppTerminate:(FBRouteRequest *)request
+//{
+//  BOOL result = [request.session terminateApplicationWithBundleId:(id)request.arguments[@"bundleId"]];
+//  return FBResponseWithObject(@(result));
+//}
 
 #pragma mark- FBSessionCommands::handleDeleteSession
 + (id<FBResponsePayload>)handleDeleteSession:(FBRouteRequest *)request
@@ -66,6 +85,7 @@
 
 + (id<FBResponsePayload>)fb_handleDeleteSession:(FBRouteRequest *)request
 {
+  [request.session.activeApplication terminate];
   return [self fb_handleDeleteSession:request];
 }
 
