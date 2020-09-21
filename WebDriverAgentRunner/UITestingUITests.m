@@ -50,9 +50,27 @@
     Method swizzledMethod = class_getClassMethod(NSClassFromString(@"XCUIApplication"), @selector(fb_dictionaryForElement:recursive:));
     method_exchangeImplementations(originalMethod, swizzledMethod);
   }
+  
+  {
+    Method originalMethod = class_getClassMethod(NSClassFromString(@"FBSessionCommands"), @selector(handleDeleteSession:));
+    Method swizzledMethod = class_getClassMethod(NSClassFromString(@"FBSessionCommands"), @selector(fb_handleDeleteSession:));
+    method_exchangeImplementations(originalMethod, swizzledMethod);
+  }
 }
-#pragma mark - XCUIApplication::dictionaryForElement
 
+#pragma mark- FBSessionCommands::handleDeleteSession
++ (id<FBResponsePayload>)handleDeleteSession:(FBRouteRequest *)request
+{
+  return nil;
+}
+
++ (id<FBResponsePayload>)fb_handleDeleteSession:(FBRouteRequest *)request
+{
+  return [self fb_handleDeleteSession:request];
+}
+
+
+#pragma mark - XCUIApplication::dictionaryForElement
 + (NSDictionary *)dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive {
   return nil;
 }
@@ -60,6 +78,8 @@
 + (NSDictionary *)fb_dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive {
   NSMutableDictionary *result = (NSMutableDictionary *)[self fb_dictionaryForElement:snapshot recursive:recursive];
   result[@"label"] = FBValueOrNull(snapshot.wdLabel);
+  result[@"title"] = FBValueOrNull(snapshot.title);
+  result[@"value"] = FBValueOrNull(snapshot.value);
   return result;
 }
 
