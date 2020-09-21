@@ -45,8 +45,25 @@
     method_exchangeImplementations(originalMethod, swizzledMethod);
   }
   
+  {
+    Method originalMethod = class_getClassMethod(NSClassFromString(@"XCUIApplication"), @selector(dictionaryForElement:recursive:));
+    Method swizzledMethod = class_getClassMethod(NSClassFromString(@"XCUIApplication"), @selector(fb_dictionaryForElement:recursive:));
+    method_exchangeImplementations(originalMethod, swizzledMethod);
+  }
+}
+#pragma mark - XCUIApplication::dictionaryForElement
+
++ (NSDictionary *)dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive {
+  return nil;
 }
 
++ (NSDictionary *)fb_dictionaryForElement:(XCElementSnapshot *)snapshot recursive:(BOOL)recursive {
+  NSMutableDictionary *result = (NSMutableDictionary *)[self fb_dictionaryForElement:snapshot recursive:recursive];
+  result[@"label"] = FBValueOrNull(snapshot.wdLabel);
+  return result;
+}
+
+#pragma mark - gestureCoordinateWithCoordinate
 + (XCUICoordinate *)gestureCoordinateWithCoordinate:(CGPoint)coordinate element:(XCUIElement *)element
 {
   return nil;
@@ -72,6 +89,7 @@
     }
 }
 
+#pragma mark - handleTap
 + (id)handleTap:(id)request {
   return nil;
 }
@@ -83,7 +101,7 @@
   return result;
 }
 
-
+#pragma mark - sessionWithApplication
 + (instancetype)sessionWithApplication:(id)session
 {
   return nil;
@@ -104,14 +122,21 @@
   [self sw_markSessionActive:session];
 }
 
+#pragma mark - routeMethod
+
 - (RouteResponse *)swizzle_routeMethod:(NSString *)method withPath:(NSString *)path parameters:(NSDictionary *)params request:(id)httpMessage connection:(id)connection {
-  NSLog(@"******** receive request:%@  path:%@",method,path);
+  if ([path containsString:@"screenshot"]) {
+    //调用频次太高，在此可以做限流，解决页面响应慢问题
+  }else{
+    NSLog(@"******** receive request:%@  path:%@",method,path);
+  }
   return [self swizzle_routeMethod:method withPath:path parameters:params request:httpMessage connection:connection];
 }
 
 - (RouteResponse *)routeMethod:(NSString *)method withPath:(NSString *)path parameters:(NSDictionary *)params request:( id)httpMessage connection:(id)connection{
   return nil;
 }
+
 @end
 
 @interface UITestingUITests : FBFailureProofTestCase <FBWebServerDelegate>
