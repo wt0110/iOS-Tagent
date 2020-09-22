@@ -120,7 +120,7 @@
     }
     
     XCUIElement *alert = [application.alerts firstMatch];
-    if (alert.frame.origin.x > 0) {
+    if ([alert exists]) {
       point.x -= alert.frame.origin.x;
       point.y -= (alert.frame.origin.y);
       return [self gestureCoordinateWithCoordinate:point element:alert];
