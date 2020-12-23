@@ -62,6 +62,33 @@
 //    Method swizzledMethod = class_getClassMethod(NSClassFromString(@"FBSessionCommands"), @selector(fb_handleSessionAppTerminate:));
 //    method_exchangeImplementations(originalMethod, swizzledMethod);
 //  }
+  
+  
+  {
+    Method originalMethod = class_getClassMethod(NSClassFromString(@"FBXCTestDaemonsProxy"), @selector(testRunnerProxy));
+    Method swizzledMethod = class_getClassMethod(NSClassFromString(@"FBXCTestDaemonsProxy"), @selector(hy_testRunnerProxy));
+    method_exchangeImplementations(originalMethod, swizzledMethod);
+  }
+}
+
++ (id)hy_testRunnerProxy {
+  static id proxy = nil;
+  static dispatch_once_t onceToken;
+  dispatch_once(&onceToken, ^{
+    Class runnerClass = objc_lookUpClass("XCTRunnerDaemonSession");
+    NSObject *shareSession = [runnerClass performSelector:@selector(sharedSession)];
+    NSLog(@"%@",shareSession);
+    proxy = [shareSession performSelector:@selector(daemonProxy)];
+  });
+  return proxy;
+}
+
++(id)testRunnerProxy {
+  return nil;
+}
+
+- (id)daemonProxy {
+  return nil;
 }
 
 #pragma mark- FBSessionCommands::handleSessionAppTerminate
